@@ -43,6 +43,26 @@ class DocumentoClienteValidatorTest extends \PHPUnit\Framework\TestCase{
             "testDocumentoClienteValido1" => [
                 "value" => "850.534.910-54",
                 "expectedResult" => true
+            ],
+            "testCnpjInvalido1" => [
+                "value" => "11.111.111/1111-11",
+                "expectedResult" => false
+            ],
+            "testCnpjInvalido2" => [
+                "value" => "",
+                "expectedResult" => false
+            ],
+            "testCnpjInvalido3" => [
+                "value" => "111111111111111111",
+                "expectedResult" => false
+            ],
+            "testCnpjInvalido4" => [
+                "value" => "111ab1111111111",
+                "expectedResult" => false
+            ],
+            "testCnpjValido1" => [
+                "value" => "05.072.394/0001-07",
+                "expectedResult" => true
             ]
         ];
     }

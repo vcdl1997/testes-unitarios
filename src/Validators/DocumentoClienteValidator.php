@@ -12,7 +12,6 @@ class DocumentoClienteValidator{
     /**
      * Função validar se o documento do cliente é valido ou não
      * @access public
-     * @param String $cpf
      * @return bool
      */ 
     public function documentoEhValido() :bool
@@ -27,6 +26,9 @@ class DocumentoClienteValidator{
 
             case 18:
                 return $this->validarCnpj($this->documento);
+
+            default: 
+                return false;
         }
     }
 
@@ -116,6 +118,73 @@ class DocumentoClienteValidator{
      */ 
     public function validarCnpj(String $cnpj) :bool
     {
+        //verifica quantos caracteres diferentes a string possui
+        if(strlen(count_chars($cnpj, 3)) == 4) return false;
+
+        $numerosCnpj = str_split(preg_replace("/[^0-9]/","", $cnpj));
+
+        if(count($numerosCnpj) < 14 || count($numerosCnpj) > 14) return false;
+
+        foreach($numerosCnpj as $numero){
+            if(!is_numeric($numero)) return false;
+        }
+
+        $numerosCnpj = array_map('intval', $numerosCnpj);
+
+        // Validação primeiro digito verificador
+        $base = $numerosCnpj;
+        $base = array_splice($base, 0, 12);
+        $somaBase = 0;
+        $decrement = 5;
+
+        foreach($base as $numero){
+            $somaBase += ($numero * $decrement);
+            $decrement--;
+            if($decrement < 2) $decrement = 9;
+        }
+
+        $resto = $somaBase % 11;
+
+        switch($resto){
+            case 0: case 1:
+                $primeiroDigitoVerificador = $numerosCnpj[12];
+                if(!in_array($primeiroDigitoVerificador, [0,1])) return false;
+            break;
+
+            default:
+                $primeiroDigitoVerificador = 11 - $resto;
+                if($primeiroDigitoVerificador != $numerosCnpj[12]) return false;
+            break;
+        }
+
+
+        // Validação segundo digito verificador
+        $base = $numerosCnpj;
+        $base = array_splice($base, 0, 13);
+        $somaBase = 0;
+        $decrement = 6;
+        
+
+        foreach($base as $numero){
+            $somaBase += ($numero * $decrement);
+            $decrement--;
+            if($decrement < 2) $decrement = 9;
+        }
+
+        $resto = $somaBase % 11;
+
+        switch($resto){
+            case 0: case 1:
+                $segundoDigitoVerificador = $numerosCnpj[13];
+                if(!in_array($segundoDigitoVerificador, [0,1])) return false;
+            break;
+
+            default:
+                $segundoDigitoVerificador = 11 - $resto;
+                if($segundoDigitoVerificador != $numerosCnpj[13]) return false;
+            break;
+        }
+
         return true;
     }
 }
